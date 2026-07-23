@@ -15,11 +15,12 @@ try:
     with open('logistic_model.pkl', 'rb') as f:
         model = pickle.load(f)
     print("✅ Models loaded with pickle")
+    print(f"Classes: {model.classes_}")
 except Exception as e:
     print(f"❌ Model loading failed: {e}")
     raise
 
-# ─── Intent mapping (now includes change_order) ──────────────
+# ─── Intent mapping ──────────────────────────────────────────
 INTENT_MAPPING = {
     "create_account": {"department": "Account Support", "priority": "High", "action": "Assist customer with account creation.", "reply": "We'll guide you through the account creation process. Please have your email and a secure password ready. If you need assistance, our team is here to help."},
     "edit_account": {"department": "Account Support", "priority": "High", "action": "Update customer account information.", "reply": "We'll update your account details. Please verify your identity and tell us which information you'd like to change. We'll process your request as soon as possible."},
@@ -37,7 +38,7 @@ INTENT_MAPPING = {
     "check_cancellation_fee": {"department": "Billing Team", "priority": "Low", "action": "Provide cancellation fee details.", "reply": "Cancellation fees depend on the product and timing. For orders not yet shipped, there is no fee. For shipped items, a restocking fee may apply. Contact us for a specific calculation."},
     "place_order": {"department": "Order Management", "priority": "Medium", "action": "Create a new customer order.", "reply": "We'll place your order. Please review your cart and confirm the shipping address. We'll send a confirmation email once the order is placed."},
     "cancel_order": {"department": "Order Management", "priority": "High", "action": "Verify eligibility and cancel the order.", "reply": "We'll cancel your order if it hasn't been shipped yet. Please confirm your order number and we'll process the cancellation. If already shipped, you may need to return the item."},
-    "change_order": {"department": "Order Management", "priority": "Medium", "action": "Update the existing order.", "reply": "We'll update your order. Please tell us what changes you need (e.g., quantity, variant, shipping address). We'll confirm once the update is applied."},  # ← added
+    "change_order": {"department": "Order Management", "priority": "Medium", "action": "Update the existing order.", "reply": "We'll update your order. Please tell us what changes you need (e.g., quantity, variant, shipping address). We'll confirm once the update is applied."},
     "track_order": {"department": "Order Management", "priority": "Medium", "action": "Provide the latest order tracking status.", "reply": "We'll track your order. Please share your order number and we'll provide the current status and estimated delivery date. You can also check your account for live updates."},
     "delivery_period": {"department": "Shipping Team", "priority": "Medium", "action": "Inform the customer about the delivery timeline.", "reply": "Standard delivery takes 3‑5 business days. Express shipping is 1‑2 business days. Delivery times may vary based on your location. We'll send tracking details once the order ships."},
     "delivery_options": {"department": "Shipping Team", "priority": "Low", "action": "Explain available delivery options.", "reply": "We offer standard, express, and same‑day delivery (in select areas). You can choose your preferred option at checkout. Shipping costs depend on the method and destination."},
@@ -57,10 +58,10 @@ DEFAULT_INFO = {
     "reply": "We've received your request and will get back to you shortly. Please provide any additional details that might help us assist you better."
 }
 
-# ─── Classes – now matches model.classes_ exactly ──────────
+# ─── Classes – exactly matches model.classes_ ──────────────
 classes = [
     'cancel_order',
-    'change_order',                      # ← now included
+    'change_order',
     'change_shipping_address',
     'check_cancellation_fee',
     'check_invoice',
