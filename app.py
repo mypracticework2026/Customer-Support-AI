@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+import sys
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 
@@ -8,13 +9,16 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Load models
-with open('tfidf_vectorizer.pkl', 'rb') as f:
-    vectorizer = pickle.load(f)
-
-with open('logistic_model.pkl', 'rb') as f:
-    model = pickle.load(f)
-
+try:
+    with open('tfidf_vectorizer.pkl', 'rb') as f:
+        vectorizer = pickle.load(f)
+    with open('logistic_model.pkl', 'rb') as f:
+        model = pickle.load(f)
+except FileNotFoundError as e:
+    print(f"❌ Missing file: {e.filename}")
+    print("Make sure both .pkl files are in the project root.")
+    sys.exit(1)
+    
 # Map class indices to intent names
 classes = [
     'cancel_order',
