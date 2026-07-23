@@ -1,25 +1,20 @@
 import os
-import pickle
 import numpy as np
-import sys
 from flask import Flask, request, jsonify, render_template
-from dotenv import load_dotenv
-
-load_dotenv()
+import joblib
 
 app = Flask(__name__)
 
+# ─── Load models with joblib ──────────────────────────────────
 try:
-    with open('tfidf_vectorizer.pkl', 'rb') as f:
-        vectorizer = pickle.load(f)
-    with open('logistic_model.pkl', 'rb') as f:
-        model = pickle.load(f)
-except FileNotFoundError as e:
-    print(f"❌ Missing file: {e.filename}")
-    print("Make sure both .pkl files are in the project root.")
-    sys.exit(1)
-    
-# Map class indices to intent names
+    vectorizer = joblib.load('tfidf_vectorizer.pkl')
+    model = joblib.load('logistic_model.pkl')
+    print("✅ Models loaded successfully with joblib!")
+except Exception as e:
+    print(f"❌ Failed to load models: {e}")
+    raise
+
+# ─── Intent classes (must match training order) ──────────────
 classes = [
     'cancel_order',
     'change_shipping_address',
@@ -49,6 +44,7 @@ classes = [
     'track_refund'
 ]
 
+# ─── Routes ─────────────────────────────────────────────────
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -71,7 +67,7 @@ def classify():
     all_intents = [
         {'intent': classes[i], 'confidence': float(proba[i])}
         for i in range(len(classes))
-        if proba[i] > 0.01  # filter out negligible values
+        if proba[i] > 0.01
     ]
     all_intents.sort(key=lambda x: x['confidence'], reverse=True)
 
@@ -82,5 +78,7 @@ def classify():
         'query': query
     })
 
+# ─── Run ─────────────────────────────────────────────────────
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
