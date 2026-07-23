@@ -158,15 +158,20 @@ INTENT_MAPPING = {
 }
 
 # ─── AI Reply generation ──────────────────────────────────────
-# Configure Gemini if API key is present
+# Use the model you specified – gemini-3.5-flash-lite
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
-    model_gemini = genai.GenerativeModel('gemini-1.5-flash')
-    print("✅ Gemini AI is ready")
+    # Use the model you mentioned – if it doesn't exist, it will fall back to template
+    try:
+        model_gemini = genai.GenerativeModel('gemini-3.5-flash-lite')
+        print("✅ Gemini model 'gemini-3.5-flash-lite' ready")
+    except Exception as e:
+        print(f"⚠️ Could not load gemini-3.5-flash-lite: {e}")
+        model_gemini = None
 else:
     model_gemini = None
-    print("⚠️ No Gemini API key found – using fallback replies")
+    print("⚠️ No Gemini API key – using fallback replies")
 
 def generate_ai_reply(query, intent, confidence):
     """Generate a helpful reply using Gemini or fallback template."""
@@ -187,7 +192,7 @@ Write a short, empathetic, and helpful reply (max 3 sentences) that addresses th
     friendly_intent = intent.replace('_', ' ').title()
     return f"Thank you for reaching out. Our {INTENT_MAPPING.get(intent, {}).get('department', 'support')} team will assist you with your {friendly_intent} request. We'll get back to you shortly."
 
-# ─── Classes (same as before) ────────────────────────────────
+# ─── Classes ────────────────────────────────────────────────
 classes = [
     'cancel_order', 'change_shipping_address', 'check_cancellation_fee',
     'check_invoice', 'check_payment_methods', 'check_refund_policy',
