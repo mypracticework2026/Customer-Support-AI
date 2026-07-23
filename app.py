@@ -15,7 +15,8 @@ try:
     with open('logistic_model.pkl', 'rb') as f:
         model = pickle.load(f)
     print("✅ Models loaded with pickle")
-    print(f"Classes: {model.classes_}")
+    print(f"Vectorizer features: {len(vectorizer.get_feature_names_out())}")
+    print(f"Model classes: {model.classes_}")
 except Exception as e:
     print(f"❌ Model loading failed: {e}")
     raise
@@ -128,6 +129,41 @@ def classify():
             'priority': info['priority'],
             'action': info['action'],
             'ai_reply': reply,
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ─── Diagnostic test endpoint ──────────────────────────────
+@app.route('/test', methods=['POST'])
+def test():
+    """
+    Send a JSON { "query": "your text" } to this endpoint.
+    It returns the vectorizer feature count, model classes,
+    and the top prediction with probabilities.
+    """
+    try:
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        if not query:
+            return jsonify({'error': 'No query provided'}), 400
+
+        vec = vectorizer.transform([query])
+        proba = model.predict_proba(vec)[0]
+        top_idx = np.argmax(proba)
+        intent = classes[top_idx]
+        confidence = float(proba[top_idx])
+
+        top3_idx = np.argsort(proba)[-3:][::-1]
+        top3 = {classes[i]: float(proba[i]) for i in top3_idx}
+
+        return jsonify({
+            'vectorizer_features': len(vectorizer.get_feature_names_out()),
+            'model_classes': list(model.classes_),
+            'query': query,
+            'top_intent': intent,
+            'confidence': confidence,
+            'top_3': top3,
+            'full_probabilities': {classes[i]: float(proba[i]) for i in range(len(classes))}
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
