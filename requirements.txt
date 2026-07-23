@@ -4,4 +4,3 @@ scikit-learn
 python-dotenv
 gunicorn
 joblib
-google-generativeai
