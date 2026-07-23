@@ -1,23 +1,25 @@
 import os
+import pickle
 import numpy as np
 from flask import Flask, request, jsonify, render_template
-import joblib
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# ─── Load models ──────────────────────────────────────────────
+# ─── Load models with pickle ─────────────────────────────────
 try:
-    vectorizer = joblib.load('tfidf_vectorizer.pkl')
-    model = joblib.load('logistic_model.pkl')
-    print("✅ Models loaded with joblib")
+    with open('tfidf_vectorizer.pkl', 'rb') as f:
+        vectorizer = pickle.load(f)
+    with open('logistic_model.pkl', 'rb') as f:
+        model = pickle.load(f)
+    print("✅ Models loaded with pickle")
 except Exception as e:
     print(f"❌ Model loading failed: {e}")
     raise
 
-# ─── Intent mapping with replies ─────────────────────────────
+# ─── Intent mapping ──────────────────────────────────────────
 INTENT_MAPPING = {
     "create_account": {"department": "Account Support", "priority": "High", "action": "Assist customer with account creation.", "reply": "We'll guide you through the account creation process. Please have your email and a secure password ready. If you need assistance, our team is here to help."},
     "edit_account": {"department": "Account Support", "priority": "High", "action": "Update customer account information.", "reply": "We'll update your account details. Please verify your identity and tell us which information you'd like to change. We'll process your request as soon as possible."},
@@ -55,10 +57,7 @@ DEFAULT_INFO = {
     "reply": "We've received your request and will get back to you shortly. Please provide any additional details that might help us assist you better."
 }
 
-def generate_ai_reply(intent):
-    return INTENT_MAPPING.get(intent, DEFAULT_INFO)['reply']
-
-# ─── Classes – exactly as printed from model.classes_ ──────
+# ─── Classes – must match model's training order ──────────
 classes = [
     'cancel_order',
     'change_shipping_address',
