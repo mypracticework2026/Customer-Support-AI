@@ -960,32 +960,53 @@
             card.className = 'intent-card';
             card.style.animation = 'fadeSlideUp 0.5s ease-out';
 
-            card.innerHTML = `
-            <div class="icon-wrap">
-              <i class="fas ${icon}"></i>
-            </div>
-            <div class="content">
-              <div class="intent-name">
-                ${formatIntentLabel(intent)}
-                <span class="tag">Primary</span>
-              </div>
-              <div class="confidence">
-                <span style="display:flex;align-items:center;gap:4px;">
-                  <i class="fas fa-circle" style="color:${color};font-size:10px;"></i>
-                  Confidence
-                </span>
-                <div class="bar-wrap">
-                  <div class="bar-fill" style="width:${pct}%;background:${color};"></div>
-                </div>
-                <span class="pct">${pct}%</span>
-              </div>
-              <div class="meta">
-                <i class="fas fa-quote-left" style="opacity:0.4;"></i>
-                ${query.length > 80 ? query.slice(0, 80) + '…' : query}
-              </div>
-            </div>
-          `;
-
+         card.innerHTML = `
+<div class="icon-wrap">
+  <i class="fas ${icon}"></i>
+</div>
+<div class="content">
+  <div class="intent-name">
+    ${formatIntentLabel(intent)}
+    <span class="tag">Primary</span>
+  </div>
+  <div class="confidence">
+    <span style="display:flex;align-items:center;gap:4px;">
+      <i class="fas fa-circle" style="color:${color};font-size:10px;"></i>
+      Confidence
+    </span>
+    <div class="bar-wrap">
+      <div class="bar-fill" style="width:${pct}%;background:${color};"></div>
+    </div>
+    <span class="pct">${pct}%</span>
+  </div>
+  <!-- NEW: Department, Priority, Action -->
+  <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;font-size:13px;">
+    <span style="background:var(--accent-light);color:var(--accent);padding:2px 12px;border-radius:40px;">
+      <i class="fas fa-building"></i> ${data.department}
+    </span>
+    <span style="background:${data.priority === 'High' ? '#fee2e2' : data.priority === 'Medium' ? '#fef9c3' : '#e0f2fe'};color:${data.priority === 'High' ? '#dc2626' : data.priority === 'Medium' ? '#ca8a04' : '#0369a1'};padding:2px 12px;border-radius:40px;font-weight:600;">
+      <i class="fas fa-flag"></i> ${data.priority} Priority
+    </span>
+    <span style="color:var(--text-muted);">
+      <i class="fas fa-bolt"></i> ${data.action}
+    </span>
+  </div>
+  <!-- NEW: AI Reply -->
+  <div style="margin-top:12px;background:var(--bg-input);border-radius:var(--radius-sm);padding:12px 16px;border-left:4px solid var(--accent);">
+    <div style="font-size:13px;color:var(--text-muted);display:flex;gap:8px;align-items:center;">
+      <i class="fas fa-robot" style="color:var(--accent);"></i>
+      <span style="font-weight:500;">AI Suggested Reply</span>
+    </div>
+    <div style="font-size:14px;margin-top:4px;color:var(--text-primary);">
+      ${data.ai_reply}
+    </div>
+  </div>
+  <div class="meta" style="margin-top:8px;">
+    <i class="fas fa-quote-left" style="opacity:0.4;"></i>
+    ${query.length > 80 ? query.slice(0, 80) + '…' : query}
+  </div>
+</div>
+`;
             resultContainer.innerHTML = '';
             resultContainer.appendChild(card);
 
