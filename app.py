@@ -49,37 +49,11 @@ INTENT_MAPPING = {
 }
 DEFAULT_INFO = {"department": "General Support", "priority": "Medium", "action": "Handle customer request."}
 
-# ─── Gemini – fully isolated with fallback ──────────────────
-model_gemini = None
-try:
-    import google.generativeai as genai
-    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-    if GOOGLE_API_KEY:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        model_gemini = genai.GenerativeModel('gemini-1.5-flash')
-        print("✅ Gemini ready")
-    else:
-        print("⚠️ No Gemini API key – using fallback replies")
-except Exception as e:
-    print(f"⚠️ Gemini initialization failed: {e}")
-
-def generate_ai_reply(query, intent, confidence=None):
-    """Generate a reply – with fallback if Gemini fails."""
+def generate_ai_reply(query, intent):
+    """Template-based reply – no AI required."""
     info = INTENT_MAPPING.get(intent, DEFAULT_INFO)
     dept = info['department']
     friendly = intent.replace('_', ' ').title()
-
-    if model_gemini is not None:
-        try:
-            prompt = f"Customer: \"{query}\"\nIntent: {intent}\nWrite a short, empathetic reply (max 2 sentences)."
-            response = model_gemini.generate_content(prompt)
-            if response and hasattr(response, 'text'):
-                return response.text.strip()
-        except Exception as e:
-            # Log the error but don't crash – fallback to template
-            print(f"⚠️ Gemini error: {e}")
-
-    # Fallback template
     return f"Thank you for reaching out. Our {dept} team will assist you with your {friendly} request. We'll get back to you shortly."
 
 # ─── Classes ────────────────────────────────────────────────
@@ -114,7 +88,7 @@ def classify():
         confidence = float(proba[top_idx])
 
         info = INTENT_MAPPING.get(intent, DEFAULT_INFO)
-        ai_reply = generate_ai_reply(query, intent, confidence)
+        ai_reply = generate_ai_reply(query, intent)
 
         all_intents = [
             {'intent': classes[i], 'confidence': float(proba[i])}
@@ -135,7 +109,6 @@ def classify():
             'all_intents': all_intents
         })
     except Exception as e:
-        # Return a clear error as JSON
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
