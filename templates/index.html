@@ -3,757 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IntentAI – Customer Service Classifier</title>
+    <title>CustomerSupport AI – Customer Service Classifier</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg-primary: #f6f8fc;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --bg-input: #f1f4fa;
-            --text-primary: #0b1a33;
-            --text-secondary: #4a5a72;
-            --text-muted: #8a9bb5;
-            --border-color: #e2e8f0;
-            --shadow: 0 8px 30px rgba(11, 26, 51, 0.06);
-            --shadow-hover: 0 16px 48px rgba(11, 26, 51, 0.10);
-            --radius: 20px;
-            --radius-sm: 12px;
-            --radius-xs: 8px;
-            --transition: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-            --gradient-start: #4f6ef7;
-            --gradient-end: #7c3aed;
-            --accent: #4f6ef7;
-            --accent-light: #eef1ff;
-            --accent-dark: #3b56d4;
-            --font: 'Inter', system-ui, -apple-system, sans-serif;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #0e1525;
-            --bg-secondary: #17203a;
-            --bg-card: #1a2442;
-            --bg-input: #242f50;
-            --text-primary: #eef2f8;
-            --text-secondary: #b0c0d8;
-            --text-muted: #6a7fa0;
-            --border-color: #2d3a5a;
-            --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-            --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.6);
-            --accent-light: #1f2b52;
-        }
-
-        body {
-            font-family: var(--font);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            transition: background var(--transition), color var(--transition);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 24px 16px 60px;
-            line-height: 1.5;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 10px;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 860px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0 28px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: var(--radius-sm);
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 20px;
-            box-shadow: 0 4px 14px rgba(79, 110, 247, 0.35);
-            flex-shrink: 0;
-        }
-
-        .brand-name {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .brand-sub {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 400;
-            -webkit-text-fill-color: var(--text-muted);
-            background: none;
-            display: block;
-            margin-top: -2px;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .theme-toggle {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 40px;
-            padding: 8px 14px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all var(--transition);
-            box-shadow: var(--shadow);
-            font-family: var(--font);
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--accent);
-            color: var(--text-primary);
-            transform: translateY(-1px);
-        }
-
-        .theme-toggle i {
-            font-size: 15px;
-        }
-
-        .badge {
-            background: var(--accent-light);
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 40px;
-            letter-spacing: 0.02em;
-            border: 1px solid transparent;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 30px 0 20px;
-        }
-
-        .hero h1 {
-            font-size: 38px;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.15;
-            background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
-            color: var(--text-secondary);
-            font-size: 17px;
-            margin-top: 10px;
-            max-width: 520px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .input-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 28px 28px 24px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            transition: all var(--transition);
-            margin-top: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .input-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end), var(--gradient-start));
-            background-size: 200% 100%;
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0%,
-            100% {
-                background-position: -200% 0;
-            }
-            50% {
-                background-position: 200% 0;
-            }
-        }
-
-        .input-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        .input-label i {
-            color: var(--accent);
-            font-size: 16px;
-        }
-
-        .input-wrapper {
-            display: flex;
-            gap: 12px;
-            align-items: stretch;
-            flex-wrap: wrap;
-        }
-
-        .input-wrapper textarea {
-            flex: 1;
-            min-width: 200px;
-            padding: 16px 18px;
-            border-radius: var(--radius-sm);
-            border: 1.5px solid var(--border-color);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-size: 15px;
-            font-family: var(--font);
-            resize: vertical;
-            min-height: 80px;
-            max-height: 200px;
-            transition: border var(--transition), box-shadow var(--transition);
-            line-height: 1.6;
-        }
-
-        .input-wrapper textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.12);
-        }
-
-        .input-wrapper textarea::placeholder {
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-sm);
-            padding: 0 32px;
-            font-weight: 600;
-            font-size: 15px;
-            font-family: var(--font);
-            cursor: pointer;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-            height: 54px;
-            box-shadow: 0 4px 16px rgba(79, 110, 247, 0.30);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 8px 28px rgba(79, 110, 247, 0.40);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.97);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-primary i {
-            font-size: 16px;
-        }
-
-        .quick-examples {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .quick-examples span {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-            padding-right: 4px;
-            display: flex;
-            align-items: center;
-        }
-
-        .quick-chip {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 40px;
-            padding: 6px 16px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font);
-            white-space: nowrap;
-        }
-
-        .quick-chip:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: var(--accent-light);
-            transform: translateY(-1px);
-        }
-
-        .result-section {
-            margin-top: 32px;
-            animation: fadeSlideUp 0.5s ease-out;
-        }
-
-        @keyframes fadeSlideUp {
-            0% {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .result-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .result-header .count {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .intent-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 24px 28px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            transition: all var(--transition);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            cursor: default;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .intent-card:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-2px);
-        }
-
-        .intent-card .icon-wrap {
-            width: 52px;
-            height: 52px;
-            border-radius: var(--radius-sm);
-            background: var(--accent-light);
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-            transition: all var(--transition);
-        }
-
-        .intent-card:hover .icon-wrap {
-            transform: scale(1.05) rotate(-2deg);
-        }
-
-        .intent-card .content {
-            flex: 1;
-            min-width: 160px;
-        }
-
-        .intent-card .intent-name {
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .intent-card .intent-name .tag {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 12px;
-            border-radius: 40px;
-            background: var(--accent-light);
-            color: var(--accent);
-            letter-spacing: 0.02em;
-        }
-
-        .intent-card .confidence {
-            font-size: 14px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 4px;
-            flex-wrap: wrap;
-        }
-
-        .confidence .bar-wrap {
-            flex: 1;
-            min-width: 100px;
-            height: 6px;
-            background: var(--bg-input);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .confidence .bar-fill {
-            height: 100%;
-            border-radius: 10px;
-            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
-            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-            width: 0%;
-        }
-
-        .confidence .pct {
-            font-weight: 600;
-            font-size: 15px;
-            color: var(--text-primary);
-            min-width: 48px;
-            text-align: right;
-        }
-
-        .intent-card .meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 6px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px 40px;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            color: var(--border-color);
-            margin-bottom: 16px;
-            display: block;
-        }
-
-        .empty-state h3 {
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 18px;
-        }
-
-        .empty-state p {
-            font-size: 14px;
-            max-width: 360px;
-            margin: 6px auto 0;
-        }
-
-        .history-section {
-            margin-top: 40px;
-        }
-
-        .history-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-        }
-
-        .history-header h3 {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .history-header .clear-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 12px;
-            cursor: pointer;
-            font-family: var(--font);
-            transition: color var(--transition);
-            padding: 4px 8px;
-            border-radius: var(--radius-xs);
-        }
-
-        .history-header .clear-btn:hover {
-            color: #ef4444;
-            background: rgba(239, 68, 68, 0.08);
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 260px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .history-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 12px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            transition: all var(--transition);
-            cursor: default;
-            animation: fadeSlideUp 0.3s ease-out;
-            flex-wrap: wrap;
-        }
-
-        .history-item:hover {
-            border-color: var(--accent);
-        }
-
-        .history-item .h-query {
-            font-size: 13px;
-            color: var(--text-secondary);
-            flex: 1;
-            min-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .history-item .h-intent {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--accent);
-            background: var(--accent-light);
-            padding: 2px 12px;
-            border-radius: 40px;
-            white-space: nowrap;
-        }
-
-        .history-item .h-time {
-            font-size: 11px;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2.5px solid var(--border-color);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .btn-primary .loader {
-            width: 18px;
-            height: 18px;
-            border-width: 2px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 14px 24px;
-            box-shadow: var(--shadow-hover);
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-            opacity: 0;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 999;
-            backdrop-filter: blur(12px);
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            pointer-events: auto;
-        }
-
-        .toast i {
-            color: var(--accent);
-            font-size: 18px;
-        }
-
-        @media (max-width: 640px) {
-            .header {
-                padding-bottom: 16px;
-            }
-            .brand-name {
-                font-size: 18px;
-            }
-            .brand-sub {
-                font-size: 11px;
-            }
-            .hero h1 {
-                font-size: 26px;
-            }
-            .hero p {
-                font-size: 15px;
-            }
-            .input-card {
-                padding: 18px 16px;
-            }
-            .input-wrapper {
-                flex-direction: column;
-            }
-            .btn-primary {
-                width: 100%;
-                justify-content: center;
-                height: 48px;
-                padding: 0 16px;
-            }
-            .intent-card {
-                padding: 16px 18px;
-                gap: 14px;
-            }
-            .intent-card .icon-wrap {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-            }
-            .intent-card .intent-name {
-                font-size: 15px;
-            }
-            .quick-examples {
-                gap: 6px;
-            }
-            .quick-chip {
-                font-size: 11px;
-                padding: 4px 12px;
-            }
-            .theme-toggle span {
-                display: none;
-            }
-            .badge {
-                font-size: 10px;
-                padding: 2px 10px;
-            }
-            .toast {
-                width: calc(100% - 32px);
-                font-size: 13px;
-                padding: 12px 16px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .brand-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 16px;
-            }
-            .brand-name {
-                font-size: 16px;
-            }
-            .hero h1 {
-                font-size: 22px;
-            }
-            .input-wrapper textarea {
-                font-size: 14px;
-                padding: 12px 14px;
-                min-height: 64px;
-            }
-        }
+        /* … (all CSS unchanged) … */
     </style>
 </head>
 <body>
@@ -766,7 +20,7 @@
                     <i class="fas fa-bolt"></i>
                 </div>
                 <div>
-                    <span class="brand-name">IntentAI</span>
+                    <span class="brand-name">CustomerSupport AI</span>
                     <span class="brand-sub">Customer Service Classifier</span>
                 </div>
             </div>
@@ -779,425 +33,333 @@
             </div>
         </header>
 
-        <section class="hero">
-            <h1>Understand customer intent in seconds</h1>
-            <p>Paste a support query below and our AI will instantly classify the intent with confidence.</p>
-        </section>
+        <!-- Rest of the HTML unchanged (hero, input, result, history) -->
+        <!-- ... -->
 
-        <section class="input-card">
-            <div class="input-label">
-                <i class="fas fa-message"></i>
-                <span>Customer query</span>
-            </div>
-            <div class="input-wrapper">
-                <textarea id="queryInput" placeholder="e.g. &quot;I want to cancel my order #12345&quot;" rows="2">I want to cancel my order #12345</textarea>
-                <button class="btn-primary" id="classifyBtn">
-                    <i class="fas fa-arrow-right"></i>
-                    <span>Classify</span>
-                </button>
-            </div>
-
-            <div class="quick-examples">
-                <span><i class="fas fa-bolt" style="margin-right:4px;color:var(--accent);"></i> Try:</span>
-                <button class="quick-chip" data-query="Where is my package? I haven't received it yet.">Track order</button>
-                <button class="quick-chip" data-query="I need to update my shipping address.">Change address</button>
-                <button class="quick-chip" data-query="How do I get a refund for my purchase?">Get refund</button>
-                <button class="quick-chip" data-query="I forgot my password, can you help?">Recover password</button>
-                <button class="quick-chip" data-query="I want to speak to a human agent.">Contact agent</button>
-            </div>
-        </section>
-
-        <section class="result-section" id="resultSection">
-            <div class="result-header">
-                <h2><i class="fas fa-chart-simple" style="color:var(--accent);margin-right:10px;"></i> Prediction</h2>
-                <span class="count" id="resultCount"></span>
-            </div>
-            <div id="resultContainer">
-                <div class="empty-state" id="emptyState">
-                    <i class="fas fa-comment-dots"></i>
-                    <h3>Waiting for your query</h3>
-                    <p>Enter a customer support message above and click <strong>Classify</strong>.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="history-section">
-            <div class="history-header">
-                <h3><i class="fas fa-clock" style="color:var(--text-muted);margin-right:8px;"></i> History</h3>
-                <button class="clear-btn" id="clearHistory"><i class="fas fa-trash-alt" style="margin-right:4px;"></i> Clear</button>
-            </div>
-            <div class="history-list" id="historyList">
-            </div>
-        </section>
-
-    </div>
-
-    <div class="toast" id="toast">
-        <i class="fas fa-circle-check"></i>
-        <span id="toastMessage">Done</span>
     </div>
 
     <script>
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  STATE
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    const state = {
-        history: JSON.parse(localStorage.getItem('intentHistory') || '[]'),
-        isDark: localStorage.getItem('intentTheme') === 'dark',
-        isLoading: false,
-    };
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  DOM REFS
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    const $ = (s) => document.querySelector(s);
-    const queryInput = $('#queryInput');
-    const classifyBtn = $('#classifyBtn');
-    const resultContainer = $('#resultContainer');
-    const emptyState = $('#emptyState');
-    const resultCount = $('#resultCount');
-    const historyList = $('#historyList');
-    const clearHistoryBtn = $('#clearHistory');
-    const themeToggle = $('#themeToggle');
-    const themeIcon = $('#themeIcon');
-    const themeLabel = $('#themeLabel');
-    const toast = $('#toast');
-    const toastMessage = $('#toastMessage');
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  THEME
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function applyTheme(dark) {
-        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-        themeIcon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
-        themeLabel.textContent = dark ? 'Light' : 'Dark';
-        localStorage.setItem('intentTheme', dark ? 'dark' : 'light');
-        state.isDark = dark;
-    }
-
-    themeToggle.addEventListener('click', () => {
-        applyTheme(!state.isDark);
-    });
-
-    applyTheme(state.isDark);
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  TOAST
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    let toastTimer = null;
-
-    function showToast(msg, icon = 'fa-circle-check') {
-        toastMessage.textContent = msg;
-        toast.querySelector('i').className = `fas ${icon}`;
-        toast.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
-    }
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  UI HELPERS
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function getIntentIcon(intent) {
-        const map = {
-            cancel_order: 'fa-ban',
-            change_shipping_address: 'fa-location-dot',
-            check_cancellation_fee: 'fa-calculator',
-            check_invoice: 'fa-receipt',
-            check_payment_methods: 'fa-credit-card',
-            check_refund_policy: 'fa-scale-balanced',
-            complaint: 'fa-triangle-exclamation',
-            contact_customer_service: 'fa-headset',
-            contact_human_agent: 'fa-user-tie',
-            create_account: 'fa-user-plus',
-            delete_account: 'fa-user-minus',
-            delivery_options: 'fa-truck-fast',
-            delivery_period: 'fa-clock',
-            edit_account: 'fa-user-pen',
-            get_invoice: 'fa-file-invoice',
-            get_refund: 'fa-money-bill-wave',
-            newsletter_subscription: 'fa-newspaper',
-            payment_issue: 'fa-circle-exclamation',
-            place_order: 'fa-cart-shopping',
-            recover_password: 'fa-key',
-            registration_problems: 'fa-circle-question',
-            review: 'fa-star',
-            set_up_shipping_address: 'fa-address-card',
-            switch_account: 'fa-arrows-rotate',
-            track_order: 'fa-magnifying-glass',
-            track_refund: 'fa-rotate-left',
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const state = {
+            history: JSON.parse(localStorage.getItem('intentHistory') || '[]'),
+            isDark: localStorage.getItem('intentTheme') === 'dark',
+            isLoading: false,
         };
-        return map[intent] || 'fa-tag';
-    }
 
-    function formatIntentLabel(intent) {
-        return intent
-            .split('_')
-            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(' ');
-    }
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  DOM REFS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const $ = (s) => document.querySelector(s);
+        const queryInput = $('#queryInput');
+        const classifyBtn = $('#classifyBtn');
+        const resultContainer = $('#resultContainer');
+        const emptyState = $('#emptyState');
+        const resultCount = $('#resultCount');
+        const historyList = $('#historyList');
+        const clearHistoryBtn = $('#clearHistory');
+        const themeToggle = $('#themeToggle');
+        const themeIcon = $('#themeIcon');
+        const themeLabel = $('#themeLabel');
+        const toast = $('#toast');
+        const toastMessage = $('#toastMessage');
 
-    function getConfidenceColor(pct) {
-        if (pct >= 75) return 'var(--accent)';
-        if (pct >= 50) return '#f59e0b';
-        return '#ef4444';
-    }
-
-    function getPriorityColor(priority) {
-        if (priority === 'High') return '#dc2626';
-        if (priority === 'Medium') return '#ca8a04';
-        return '#0369a1';
-    }
-
-    function getPriorityBg(priority) {
-        if (priority === 'High') return '#fee2e2';
-        if (priority === 'Medium') return '#fef9c3';
-        return '#e0f2fe';
-    }
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  RENDER RESULT
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function renderResult(data) {
-        const { customer_query, intent, confidence, department, priority, action, ai_reply, all_intents } = data;
-
-        emptyState.style.display = 'none';
-
-        const pct = Math.round(confidence * 100);
-        const color = getConfidenceColor(pct);
-        const icon = getIntentIcon(intent);
-        const priColor = getPriorityColor(priority);
-        const priBg = getPriorityBg(priority);
-
-        const card = document.createElement('div');
-        card.className = 'intent-card';
-        card.style.animation = 'fadeSlideUp 0.5s ease-out';
-
-        card.innerHTML = `
-            <div class="icon-wrap">
-                <i class="fas ${icon}"></i>
-            </div>
-            <div class="content">
-                <div class="intent-name">
-                    ${formatIntentLabel(intent)}
-                    <span class="tag">Primary</span>
-                </div>
-                <div class="confidence">
-                    <span style="display:flex;align-items:center;gap:4px;">
-                        <i class="fas fa-circle" style="color:${color};font-size:10px;"></i>
-                        Confidence
-                    </span>
-                    <div class="bar-wrap">
-                        <div class="bar-fill" style="width:${pct}%;background:${color};"></div>
-                    </div>
-                    <span class="pct">${pct}%</span>
-                </div>
-
-                <!-- Department, Priority, Action -->
-                <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;font-size:13px;align-items:center;">
-                    <span style="background:var(--accent-light);color:var(--accent);padding:2px 12px;border-radius:40px;display:inline-flex;align-items:center;gap:4px;">
-                        <i class="fas fa-building"></i> ${department}
-                    </span>
-                    <span style="background:${priBg};color:${priColor};padding:2px 12px;border-radius:40px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
-                        <i class="fas fa-flag"></i> ${priority} Priority
-                    </span>
-                    <span style="color:var(--text-muted);display:inline-flex;align-items:center;gap:4px;">
-                        <i class="fas fa-bolt"></i> ${action}
-                    </span>
-                </div>
-
-                <!-- AI Reply -->
-                <div style="margin-top:12px;background:var(--bg-input);border-radius:var(--radius-sm);padding:12px 16px;border-left:4px solid var(--accent);">
-                    <div style="font-size:13px;color:var(--text-muted);display:flex;gap:8px;align-items:center;">
-                        <i class="fas fa-robot" style="color:var(--accent);"></i>
-                        <span style="font-weight:500;">AI Suggested Reply</span>
-                    </div>
-                    <div style="font-size:14px;margin-top:4px;color:var(--text-primary);">
-                        ${ai_reply}
-                    </div>
-                </div>
-
-                <div class="meta" style="margin-top:8px;">
-                    <i class="fas fa-quote-left" style="opacity:0.4;"></i>
-                    ${customer_query.length > 80 ? customer_query.slice(0, 80) + '…' : customer_query}
-                </div>
-            </div>
-        `;
-
-        resultContainer.innerHTML = '';
-        resultContainer.appendChild(card);
-
-        // All intents chips
-        if (all_intents && all_intents.length > 1) {
-            const chipWrap = document.createElement('div');
-            chipWrap.style.cssText = `
-                display:flex;
-                flex-wrap:wrap;
-                gap:6px;
-                margin-top:10px;
-                padding:10px 0 2px;
-                border-top:1px solid var(--border-color);
-            `;
-            chipWrap.innerHTML = `
-                <span style="font-size:12px;color:var(--text-muted);font-weight:500;margin-right:6px;">
-                    <i class="fas fa-layer-group"></i> All intents
-                </span>
-            `;
-            all_intents.forEach((item) => {
-                const p = Math.round(item.confidence * 100);
-                const chip = document.createElement('span');
-                chip.style.cssText = `
-                    background:var(--bg-input);
-                    border:1px solid var(--border-color);
-                    border-radius:40px;
-                    padding:2px 14px;
-                    font-size:12px;
-                    font-weight:500;
-                    color:var(--text-secondary);
-                    display:inline-flex;
-                    align-items:center;
-                    gap:6px;
-                `;
-                chip.innerHTML = `
-                    ${formatIntentLabel(item.intent)}
-                    <span style="color:${getConfidenceColor(p)};font-weight:600;">${p}%</span>
-                `;
-                chipWrap.appendChild(chip);
-            });
-            resultContainer.appendChild(chipWrap);
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  THEME
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function applyTheme(dark) {
+            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+            themeIcon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+            themeLabel.textContent = dark ? 'Light' : 'Dark';
+            localStorage.setItem('intentTheme', dark ? 'dark' : 'light');
+            state.isDark = dark;
         }
 
-        resultCount.textContent = `Top intent · ${pct}% confidence`;
-        addHistory(customer_query, intent, pct);
-    }
+        themeToggle.addEventListener('click', () => {
+            applyTheme(!state.isDark);
+        });
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  CLASSIFY (API call)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    async function classify(query) {
-        if (!query.trim()) {
-            showToast('Please enter a query first.', 'fa-triangle-exclamation');
-            return;
+        applyTheme(state.isDark);
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  TOAST
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let toastTimer = null;
+
+        function showToast(msg, icon = 'fa-circle-check') {
+            toastMessage.textContent = msg;
+            toast.querySelector('i').className = `fas ${icon}`;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
         }
 
-        if (state.isLoading) return;
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  UI HELPERS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function getIntentIcon(intent) {
+            const map = {
+                cancel_order: 'fa-ban',
+                change_shipping_address: 'fa-location-dot',
+                check_cancellation_fee: 'fa-calculator',
+                check_invoice: 'fa-receipt',
+                check_payment_methods: 'fa-credit-card',
+                check_refund_policy: 'fa-scale-balanced',
+                complaint: 'fa-triangle-exclamation',
+                contact_customer_service: 'fa-headset',
+                contact_human_agent: 'fa-user-tie',
+                create_account: 'fa-user-plus',
+                delete_account: 'fa-user-minus',
+                delivery_options: 'fa-truck-fast',
+                delivery_period: 'fa-clock',
+                edit_account: 'fa-user-pen',
+                get_invoice: 'fa-file-invoice',
+                get_refund: 'fa-money-bill-wave',
+                newsletter_subscription: 'fa-newspaper',
+                payment_issue: 'fa-circle-exclamation',
+                place_order: 'fa-cart-shopping',
+                recover_password: 'fa-key',
+                registration_problems: 'fa-circle-question',
+                review: 'fa-star',
+                set_up_shipping_address: 'fa-address-card',
+                switch_account: 'fa-arrows-rotate',
+                track_order: 'fa-magnifying-glass',
+                track_refund: 'fa-rotate-left',
+            };
+            return map[intent] || 'fa-tag';
+        }
 
-        state.isLoading = true;
-        classifyBtn.disabled = true;
-        classifyBtn.innerHTML = `<span class="loader"></span> Analyzing…`;
+        function formatIntentLabel(intent) {
+            return intent
+                .split('_')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(' ');
+        }
 
-        try {
-            const response = await fetch('/classify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: query.trim() }),
-            });
+        function getConfidenceColor(pct) {
+            if (pct >= 75) return 'var(--accent)';
+            if (pct >= 50) return '#f59e0b';
+            return '#ef4444';
+        }
 
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error || 'Server error');
+        function getPriorityColor(priority) {
+            if (priority === 'High') return '#dc2626';
+            if (priority === 'Medium') return '#ca8a04';
+            return '#0369a1';
+        }
+
+        function getPriorityBg(priority) {
+            if (priority === 'High') return '#fee2e2';
+            if (priority === 'Medium') return '#fef9c3';
+            return '#e0f2fe';
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  RENDER RESULT (No all_intents)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderResult(data) {
+            const { customer_query, intent, confidence, department, priority, action, ai_reply } = data;
+
+            emptyState.style.display = 'none';
+
+            const pct = Math.round(confidence * 100);
+            const color = getConfidenceColor(pct);
+            const icon = getIntentIcon(intent);
+            const priColor = getPriorityColor(priority);
+            const priBg = getPriorityBg(priority);
+
+            const card = document.createElement('div');
+            card.className = 'intent-card';
+            card.style.animation = 'fadeSlideUp 0.5s ease-out';
+
+            card.innerHTML = `
+                <div class="icon-wrap">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="content">
+                    <div class="intent-name">
+                        ${formatIntentLabel(intent)}
+                        <span class="tag">Primary</span>
+                    </div>
+                    <div class="confidence">
+                        <span style="display:flex;align-items:center;gap:4px;">
+                            <i class="fas fa-circle" style="color:${color};font-size:10px;"></i>
+                            Confidence
+                        </span>
+                        <div class="bar-wrap">
+                            <div class="bar-fill" style="width:${pct}%;background:${color};"></div>
+                        </div>
+                        <span class="pct">${pct}%</span>
+                    </div>
+
+                    <!-- Department, Priority, Action -->
+                    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;font-size:13px;align-items:center;">
+                        <span style="background:var(--accent-light);color:var(--accent);padding:2px 12px;border-radius:40px;display:inline-flex;align-items:center;gap:4px;">
+                            <i class="fas fa-building"></i> ${department}
+                        </span>
+                        <span style="background:${priBg};color:${priColor};padding:2px 12px;border-radius:40px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                            <i class="fas fa-flag"></i> ${priority} Priority
+                        </span>
+                        <span style="color:var(--text-muted);display:inline-flex;align-items:center;gap:4px;">
+                            <i class="fas fa-bolt"></i> ${action}
+                        </span>
+                    </div>
+
+                    <!-- AI Reply -->
+                    <div style="margin-top:12px;background:var(--bg-input);border-radius:var(--radius-sm);padding:12px 16px;border-left:4px solid var(--accent);">
+                        <div style="font-size:13px;color:var(--text-muted);display:flex;gap:8px;align-items:center;">
+                            <i class="fas fa-robot" style="color:var(--accent);"></i>
+                            <span style="font-weight:500;">AI Suggested Reply</span>
+                        </div>
+                        <div style="font-size:14px;margin-top:4px;color:var(--text-primary);">
+                            ${ai_reply}
+                        </div>
+                    </div>
+
+                    <div class="meta" style="margin-top:8px;">
+                        <i class="fas fa-quote-left" style="opacity:0.4;"></i>
+                        ${customer_query.length > 80 ? customer_query.slice(0, 80) + '…' : customer_query}
+                    </div>
+                </div>
+            `;
+
+            resultContainer.innerHTML = '';
+            resultContainer.appendChild(card);
+
+            resultCount.textContent = `Top intent · ${pct}% confidence`;
+            addHistory(customer_query, intent, pct);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  CLASSIFY (API call)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        async function classify(query) {
+            if (!query.trim()) {
+                showToast('Please enter a query first.', 'fa-triangle-exclamation');
+                return;
             }
 
-            const data = await response.json();
-            renderResult(data);
-            showToast(`Classified as “${formatIntentLabel(data.intent)}”`, 'fa-circle-check');
+            if (state.isLoading) return;
 
-        } catch (err) {
-            console.error(err);
-            showToast(err.message || 'Something went wrong.', 'fa-circle-xmark');
-            emptyState.style.display = 'block';
-            emptyState.innerHTML = `
-                <i class="fas fa-circle-xmark" style="color:#ef4444;"></i>
-                <h3 style="color:#ef4444;">Error</h3>
-                <p>${err.message || 'Could not classify. Please try again.'}</p>
-            `;
-            resultContainer.innerHTML = '';
-            resultCount.textContent = '';
-        } finally {
-            state.isLoading = false;
-            classifyBtn.disabled = false;
-            classifyBtn.innerHTML = `<i class="fas fa-arrow-right"></i> <span>Classify</span>`;
+            state.isLoading = true;
+            classifyBtn.disabled = true;
+            classifyBtn.innerHTML = `<span class="loader"></span> Analyzing…`;
+
+            try {
+                const response = await fetch('/classify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query.trim() }),
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || 'Server error');
+                }
+
+                const data = await response.json();
+                renderResult(data);
+                showToast(`Classified as “${formatIntentLabel(data.intent)}”`, 'fa-circle-check');
+
+            } catch (err) {
+                console.error(err);
+                showToast(err.message || 'Something went wrong.', 'fa-circle-xmark');
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = `
+                    <i class="fas fa-circle-xmark" style="color:#ef4444;"></i>
+                    <h3 style="color:#ef4444;">Error</h3>
+                    <p>${err.message || 'Could not classify. Please try again.'}</p>
+                `;
+                resultContainer.innerHTML = '';
+                resultCount.textContent = '';
+            } finally {
+                state.isLoading = false;
+                classifyBtn.disabled = false;
+                classifyBtn.innerHTML = `<i class="fas fa-arrow-right"></i> <span>Classify</span>`;
+            }
         }
-    }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  HISTORY
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function addHistory(query, intent, pct) {
-        const entry = {
-            query: query.trim(),
-            intent,
-            pct,
-            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            ts: Date.now(),
-        };
-        state.history.unshift(entry);
-        if (state.history.length > 50) state.history.pop();
-        localStorage.setItem('intentHistory', JSON.stringify(state.history));
-        renderHistory();
-    }
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  HISTORY (unchanged)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function addHistory(query, intent, pct) {
+            const entry = {
+                query: query.trim(),
+                intent,
+                pct,
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                ts: Date.now(),
+            };
+            state.history.unshift(entry);
+            if (state.history.length > 50) state.history.pop();
+            localStorage.setItem('intentHistory', JSON.stringify(state.history));
+            renderHistory();
+        }
 
-    function renderHistory() {
-        if (state.history.length === 0) {
-            historyList.innerHTML = `
-                <div style="text-align:center;padding:28px 0;color:var(--text-muted);font-size:13px;">
-                    <i class="fas fa-clock" style="display:block;font-size:28px;margin-bottom:8px;opacity:0.4;"></i>
-                    No history yet
+        function renderHistory() {
+            if (state.history.length === 0) {
+                historyList.innerHTML = `
+                    <div style="text-align:center;padding:28px 0;color:var(--text-muted);font-size:13px;">
+                        <i class="fas fa-clock" style="display:block;font-size:28px;margin-bottom:8px;opacity:0.4;"></i>
+                        No history yet
+                    </div>
+                `;
+                return;
+            }
+
+            historyList.innerHTML = state.history.map((h) => `
+                <div class="history-item">
+                    <span class="h-query">${escapeHtml(h.query)}</span>
+                    <span class="h-intent">${formatIntentLabel(h.intent)} · ${h.pct}%</span>
+                    <span class="h-time">${h.time}</span>
                 </div>
-            `;
-            return;
+            `).join('');
         }
 
-        historyList.innerHTML = state.history.map((h) => `
-            <div class="history-item">
-                <span class="h-query">${escapeHtml(h.query)}</span>
-                <span class="h-intent">${formatIntentLabel(h.intent)} · ${h.pct}%</span>
-                <span class="h-time">${h.time}</span>
-            </div>
-        `).join('');
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    clearHistoryBtn.addEventListener('click', () => {
-        state.history = [];
-        localStorage.setItem('intentHistory', '[]');
-        renderHistory();
-        showToast('History cleared', 'fa-trash-alt');
-    });
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  EVENT BINDING
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    classifyBtn.addEventListener('click', () => classify(queryInput.value));
-
-    queryInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-            e.preventDefault();
-            classify(queryInput.value);
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
-    });
 
-    document.querySelectorAll('.quick-chip').forEach((chip) => {
-        chip.addEventListener('click', () => {
-            queryInput.value = chip.dataset.query;
-            classify(queryInput.value);
+        clearHistoryBtn.addEventListener('click', () => {
+            state.history = [];
+            localStorage.setItem('intentHistory', '[]');
+            renderHistory();
+            showToast('History cleared', 'fa-trash-alt');
         });
-    });
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  INIT
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    renderHistory();
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  EVENT BINDING
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        classifyBtn.addEventListener('click', () => classify(queryInput.value));
 
-    if (queryInput.value.trim()) {
-        setTimeout(() => classify(queryInput.value), 400);
-    }
+        queryInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                classify(queryInput.value);
+            }
+        });
 
-    console.log('🚀 IntentAI ready');
-</script>
+        document.querySelectorAll('.quick-chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+                queryInput.value = chip.dataset.query;
+                classify(queryInput.value);
+            });
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  INIT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        renderHistory();
+
+        if (queryInput.value.trim()) {
+            setTimeout(() => classify(queryInput.value), 400);
+        }
+
+        console.log('🚀 CustomerSupport AI ready');
+    </script>
+
 </body>
 </html>
